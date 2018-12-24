@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Sirenix.OdinInspector;
 
 namespace TaomeeTools.AssetAuditor
 {
@@ -8,7 +9,7 @@ namespace TaomeeTools.AssetAuditor
     /// 检查工具的设置，记录工具的一些全局设置
     /// </summary>
     /// 
-    [CreateAssetMenu]
+    //[CreateAssetMenu]
     public class AssetAuditorSetting : ScriptableObject
     {
         /// <summary>
@@ -17,5 +18,7 @@ namespace TaomeeTools.AssetAuditor
         /// 
         [SerializeField]
         public AuditorInfo infoFile;
+        [FolderPath]
+        public string configPath;
     }
 }

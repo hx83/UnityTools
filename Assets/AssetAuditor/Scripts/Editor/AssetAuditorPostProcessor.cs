@@ -6,7 +6,7 @@ using UnityEngine;
 public class AssetAuditorPostProcessor : AssetPostprocessor
 {
 
-    void OnPreprocessAsset()
+    void OnPostprocessAllAssets()
     {
         Debug.Log(assetImporter.assetBundleName);
         if (assetImporter.assetBundleName == "Asset Auditor Setting")

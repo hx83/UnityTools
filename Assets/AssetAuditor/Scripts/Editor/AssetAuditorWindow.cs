@@ -7,6 +7,7 @@ using Sirenix.Utilities.Editor;
 using Sirenix.Serialization;
 using UnityEditor;
 using Sirenix.Utilities;
+using System.IO;
 
 
 using Sirenix.OdinInspector;
@@ -15,7 +16,7 @@ namespace TaomeeTools.AssetAuditor
 {
     public class AssetAuditorWindow : OdinMenuEditorWindow
     {
-        //private string SettingPath = ""
+        private AssetAuditorSetting setting;
         private AuditorInfo currentAuditor;
 
         [MenuItem("Taomee Tools/Asset Auditor")]
@@ -23,52 +24,108 @@ namespace TaomeeTools.AssetAuditor
         {
             var window = GetWindow<AssetAuditorWindow>();
             window.position = GUIHelper.GetEditorWindowRect().AlignCenter(800, 600);
-            window.Init();
         }
-        public void Init()
+        private void Init()
         {
-            //AssetDatabase
+            string[] list = AssetDatabase.FindAssets("t:AssetAuditorSetting");
+            var path = AssetDatabase.GUIDToAssetPath(list[0]);
+            setting = AssetDatabase.LoadAssetAtPath<AssetAuditorSetting>(path);
+            currentAuditor = setting.infoFile;
+
             /*
-            currentAuditor = AssetDatabase.LoadAssetAtPath<AuditorInfo>("Assets/AssetAuditor/Source/AuditorInfo.asset");
-            currentAuditor.AddRule(new TextureRule());
+            int n = currentAuditor.ConfigList.Count;
+            Debug.Log("config num:" + n);
+
+            if(n == 0)
+            {
+                Debug.Log("create new");
+                var asset = CreateNewRule("rule");
+
+                currentAuditor.AddRule(asset);
+                AssetDatabase.SaveAssets();
+            }
             */
         }
         protected override void OnGUI()
         {
+            if(currentAuditor == null)
+            {
+                this.Init();
+            }
             base.OnGUI();
-            
+
             GUILayout.BeginHorizontal();
             GUILayout.Button("New Folders Rule",GUILayoutOptions.Height(300));
             GUILayout.Button("New Files Rule");
             GUILayout.EndHorizontal();
+
         }
+
+        /// <summary>
+        /// Creates the new rule asset file.
+        /// </summary>
+        /// <param name="str">Name.</param>
+        private BaseRuleConfig CreateNewRule(string str)
+        {
+            var tempPath = setting.configPath + "/" +
+                          Path.GetFileNameWithoutExtension(AssetDatabase.GetAssetPath(currentAuditor)) + "Res";
+
+
+            if (!Directory.Exists(tempPath))
+            {
+                Directory.CreateDirectory(tempPath);
+            }
+            var asset = new TextureRule();
+            AssetDatabase.CreateAsset(asset, tempPath + "/" + str + ".asset");
+            AssetDatabase.SaveAssets();
+            return asset;
+        }
+
+
+
+
+
+
+
+
         protected override OdinMenuTree BuildMenuTree()
         {
+
+
             OdinMenuTree tree = new OdinMenuTree(supportsMultiSelect: true)
+            { };
+            //
+            //
+            var tempPath = setting.configPath + "/" +
+                          Path.GetFileNameWithoutExtension(AssetDatabase.GetAssetPath(currentAuditor)) + "Res";
+
+            if (!Directory.Exists(tempPath))
             {
-                { "Home",                           this,                           EditorIcons.House                       }, // Draws the this.someData field in this case.
-                { "Odin Settings",                  null,                           EditorIcons.SettingsCog                 },
-                { "Odin Settings/Color Palettes",   ColorPaletteManager.Instance,   EditorIcons.EyeDropper                  },
-                { "Odin Settings/AOT Generation",   AOTGenerationConfig.Instance,   EditorIcons.SmartPhone                  },
-                { "Player Settings",                Resources.FindObjectsOfTypeAll<PlayerSettings>().FirstOrDefault()       },
-                { "Some Class",                     null                                                           }
-            };
+                return tree;
+            }
+            DirectoryInfo direction = new DirectoryInfo(tempPath);  
 
-            tree.AddAllAssetsAtPath("Odin Settings/More Odin Settings", "Plugins/Sirenix", typeof(ScriptableObject), true)
-                .AddThumbnailIcons();
+            FileInfo[] files = direction.GetFiles("*",SearchOption.TopDirectoryOnly);  
+  
+            for(int i=0;i<files.Length;i++)
+            {
+                FileInfo info = files[i];
+                if(info.Name.EndsWith(".asset"))
+                {
+                    BaseRuleConfig config = AssetDatabase.LoadAssetAtPath<BaseRuleConfig>(tempPath + "/" + info.Name);
+                    tree.Add(Path.GetFileNameWithoutExtension(info.Name), config);
+                }
+            } 
 
-            tree.AddAssetAtPath("Odin Getting Started", "Plugins/Sirenix/Getting Started With Odin.asset");
 
-            tree.MenuItems.Insert(2, new OdinMenuItem(tree, "Menu Style", tree.DefaultMenuStyle));
+
+            /*
 
             tree.Add("Menu/Items/Are/Created/As/Needed", new GUIContent());
-            tree.Add("Menu/Items/Are/Created", new GUIContent("And can be overridden"));
+            //tree.Add("Menu/Items/Are/Created", new GUIContent("And can be overridden"));
 
             tree.SortMenuItemsByName();
-
-            // As you can see, Odin provides a few ways to quickly add editors / objects to your menu tree.
-            // The API also gives you full control over the selection, etc..
-            // Make sure to check out the API Documentation for OdinMenuEditorWindow, OdinMenuTree and OdinMenuItem for more information on what you can do!
+            */
 
             return tree;
         }

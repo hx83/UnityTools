@@ -11,4 +11,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a704ae58fe612840b22daac0e2099fb, type: 3}
   m_Name: Asset Auditor Setting
   m_EditorClassIdentifier: 
-  infoFile: {fileID: 11400000, guid: 7deca3aacfae40048a9982ffeb1a9c4f, type: 2}
+  infoFile: {fileID: 11400000, guid: 331a600c9e5284eb0acbfce4f173840e, type: 2}
+  configPath: Assets/AssetAuditor/Source

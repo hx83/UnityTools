@@ -11,8 +11,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e17cc50926da7c409287f75b5f0de5f, type: 3}
   m_Name: AuditorInfo
   m_EditorClassIdentifier: 
-  list:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  list: []
