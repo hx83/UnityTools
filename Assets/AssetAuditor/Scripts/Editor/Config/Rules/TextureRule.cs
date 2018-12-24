@@ -36,12 +36,17 @@ namespace TaomeeTools.AssetAuditor
                                                                                                     };
 
 
+
+        private bool showDeleteWarning;
+        //
+        //
+        //
         [Title("Rule Type:")]
         [InfoBox("    选择一个规则类型\n    Folder : 针对文件夹设置\n    FileList : 针对特定文件设置")]
         [EnumPaging]
         public RuleType ruleType = RuleType.Folder;
         //
-        [Space(20)]
+        [PropertySpace(20)]
         [Title("File List: (5 per page)")]
 
         [ShowIf("ruleType", RuleType.FileList)]
@@ -50,7 +55,7 @@ namespace TaomeeTools.AssetAuditor
 
         //
         //
-        [Space(20)]
+        [PropertySpace(20)]
         [Title("Folder Path:")]
 
         [ShowIf("ruleType", RuleType.Folder)]
@@ -58,7 +63,7 @@ namespace TaomeeTools.AssetAuditor
         public string FoldPath;
 
 
-        [Space(20)]
+        [PropertySpace(20)]
         [Title("Rule Settings:")]
 
         [EnumPaging, OnValueChanged("OnSelectTypeChange")]
@@ -107,5 +112,54 @@ namespace TaomeeTools.AssetAuditor
         [LabelText("Compress Format")]
         public TextureImporterFormat compressIOS = TextureImporterFormat.PVRTC_RGBA4;
 
+        //
+        //
+
+        [PropertySpace(10)]
+        [InfoBox("删除规则将无法还原，确定要删除吗？", InfoMessageType.Error, "showDeleteWarning")]
+        [Button("注意！",ButtonHeight = 20)]
+        [ShowIf("showDeleteWarning")]
+        private void Empty(){}
+
+
+        [PropertySpace(20)]
+        [Button(ButtonSizes.Large), GUIColor(1, 0, 0)]
+        [HideIf("showDeleteWarning")]
+        private void DeleteRule()
+        {
+            showDeleteWarning = true;
+        }
+
+        
+
+        [PropertySpace(20)]
+        [Button(ButtonSizes.Large), GUIColor(0, 1, 0)]
+        [ShowIf("showDeleteWarning")]
+        [HorizontalGroup("Split", 0.5f)]
+        private void Cancel()
+        {
+            showDeleteWarning = false;
+        }
+
+        [PropertySpace(20)]
+        [Button(ButtonSizes.Large), GUIColor(1, 0, 0)]
+        [ShowIf("showDeleteWarning")]
+        [VerticalGroup("Split/right")]
+        private void Apply()
+        {
+            showDeleteWarning = false;
+            string path = AssetDatabase.GetAssetPath(this);
+            //Debug.Log(path);
+            //AssetDatabase.DeleteAsset(path);
+            AssetAuditorWindow.DeleteRule(path);
+        }
+        //
+        /*
+        [OnInspectorGUI]
+        private void OnInspectorGUI()
+        {
+            UnityEditor.EditorGUILayout.HelpBox("On Inspector GUI can also be used on both methods and properties", UnityEditor.MessageType.Info);
+        }
+        */
     }
 }

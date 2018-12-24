@@ -16,16 +16,37 @@ namespace TaomeeTools.AssetAuditor
 {
     public class AssetAuditorWindow : OdinMenuEditorWindow
     {
+        private AssetAuditorWindow window;
         private AssetAuditorSetting setting;
         private AuditorInfo currentAuditor;
         //
         private List<string> nameList;
+
+        private bool isDeleting = false;
+
+        private bool isNameOK = true;
+        private string boxTip = "";
+        private string ruleName = "";
 
         [MenuItem("Taomee Tools/Asset Auditor")]
         private static void OpenWindow()
         {
             var window = GetWindow<AssetAuditorWindow>();
             window.position = GUIHelper.GetEditorWindowRect().AlignCenter(800, 600);
+        }
+        public static void DeleteRule(string path)
+        {
+            var window = GetWindow<AssetAuditorWindow>();
+            window.Delete(path);
+        }
+
+        private void Delete(string path)
+        {
+            isDeleting = true;
+            this.BuildMenuTree();
+            this.ForceMenuTreeRebuild();
+            //????
+            AssetDatabase.DeleteAsset(path);
         }
         private void Init()
         {
@@ -59,29 +80,58 @@ namespace TaomeeTools.AssetAuditor
             GUILayout.Space(10);
             GUILayout.BeginHorizontal();
 
-            string ruleName = EditorGUILayout.TextField(new GUIContent("Rule Name:"), "", GUILayoutOptions.Height(20));
+
+            ruleName = EditorGUILayout.TextField(new GUIContent("Rule Name:"), ruleName, GUILayoutOptions.Height(20));
+
             GUI.color = Color.green;
+
             if(GUILayout.Button("+ New Rule", GUILayoutOptions.MaxWidth(100).Height(20)))
             {
-                Debug.Log("??" + ruleName + "!");
-                
+                ruleName = ruleName.Trim();
+                //Debug.Log("??" + tempName + "!");
+                if(ruleName == "")
+                {
+                    isNameOK = false;
+                    boxTip = "Rule name cannot be empty! 规则名称不能为空";
+                }
+                else if(nameList.Contains(ruleName))
+                {
+                    isNameOK = false;
+                    boxTip = "Rule name has already exist! 规则名称已经存在";
+                }
+                else
+                {
+                    isNameOK = true;
+                }
+
+                if (isNameOK == true)
+                {
+                    Debug.Log("create new rule");
+                    CreateNewRule(ruleName);
+                    ruleName = "";
+                }
             }
             GUI.color = Color.white;
 
             GUILayout.EndHorizontal();
-            if (ruleName.Trim() == "")
+
+            if (isNameOK == false && boxTip != "")
             {
-                Debug.Log("errr");
-                GUILayout.Box("Rule Name is Empty");
+                GUI.color = Color.red;
+                GUILayout.Box(boxTip, GUILayoutOptions.ExpandWidth());
+                GUI.color = Color.white;
             }
+
+
             GUILayout.Space(10);
 
             base.OnGUI();
-
+            /*
             GUILayout.BeginHorizontal();
             GUILayout.Button("New Folders Rule",GUILayoutOptions.Height(100));
             GUILayout.Button("New Files Rule");
             GUILayout.EndHorizontal();
+            */
             //
         }
 
@@ -114,14 +164,18 @@ namespace TaomeeTools.AssetAuditor
 
         protected override OdinMenuTree BuildMenuTree()
         {
-
-            OdinMenuTree tree = new OdinMenuTree(supportsMultiSelect: true)
+            
+            OdinMenuTree tree = new OdinMenuTree(supportsMultiSelect: false)
             { };
             //
             //
+            if(isDeleting)
+            {
+                return tree;
+            }
             var tempPath = setting.configPath + "/" +
                           Path.GetFileNameWithoutExtension(AssetDatabase.GetAssetPath(currentAuditor)) + "Res";
-
+            
             if (!Directory.Exists(tempPath))
             {
                 return tree;
