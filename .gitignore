@@ -4,5 +4,6 @@
 Library/CurrentLayout.dwlt
 *.dwlt
 Library/ScriptMapper
+Library/metadata
 *.log
 *.dwlt
