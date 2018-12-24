@@ -11,5 +11,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 692f994b8cf3ba849b0bcc5d29696bb7, type: 3}
   m_Name: rule
   m_EditorClassIdentifier: 
-  label: tes
-  texture: {fileID: 2800000, guid: a78bffbeb81b48ae9ec71ad7969613e5, type: 3}
+  ruleType: 1
+  textureList: []
+  FoldPath: 
+  AssetType: 0
+  ReadWriteEnabled: 0
+  MipMaps: 0
+  TextureMaxSizeAndroid: 512
+  compressAndroid: 47
+  TextureMaxSizeIOS: 512
+  compressIOS: 33
