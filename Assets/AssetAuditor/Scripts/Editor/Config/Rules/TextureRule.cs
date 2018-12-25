@@ -6,10 +6,10 @@ using UnityEditor;
 
 namespace TaomeeTools.AssetAuditor
 {
-    
-    public class TextureRule : BaseRuleConfig 
+
+    public partial class RuleConfig : ScriptableObject
     {
-        private static int[] TextureSizes = new int[] { 32,64,128,256,512,1024,2048};
+        private static int[] TextureSizes = new int[] { 32, 64, 128, 256, 512, 1024, 2048 };
         private static TextureImporterFormat[] TextureFormatAndroid = new TextureImporterFormat[] {
                                                                                                     TextureImporterFormat.ETC2_RGB4,
                                                                                                     TextureImporterFormat.ETC2_RGB4_PUNCHTHROUGH_ALPHA,
@@ -37,44 +37,8 @@ namespace TaomeeTools.AssetAuditor
 
 
 
+        //
         private bool showDeleteWarning;
-        //
-        //
-        //
-        [Title("Rule Type:")]
-        [InfoBox("    选择一个规则类型\n    Folder : 针对文件夹设置\n    FileList : 针对特定文件设置")]
-        [EnumPaging]
-        public RuleType ruleType = RuleType.Folder;
-        //
-        [PropertySpace(20)]
-        [Title("File List: (5 per page)")]
-
-        [ShowIf("ruleType", RuleType.FileList)]
-        [ListDrawerSettings(NumberOfItemsPerPage = 5,Expanded = true)]
-        public Texture[] textureList;
-
-        //
-        //
-        [PropertySpace(20)]
-        [Title("Folder Path:")]
-
-        [ShowIf("ruleType", RuleType.Folder)]
-        [FolderPath]
-        public string FoldPath;
-
-
-        [PropertySpace(20)]
-        [Title("Rule Settings:")]
-
-        [EnumPaging, OnValueChanged("OnSelectTypeChange")]
-        [InfoBox("选择要设置的资源类型")]
-        public AssetType AssetType;
-
-        private void OnSelectTypeChange()
-        {
-            //new TextureFormat
-        }
-
         //
         [ShowIf("AssetType", AssetType.Texture)]
         public bool ReadWriteEnabled;

@@ -8,7 +8,7 @@ using Sirenix.Serialization;
 using UnityEditor;
 using Sirenix.Utilities;
 using System.IO;
-
+using System.Timers;
 
 using Sirenix.OdinInspector;
 
@@ -22,18 +22,24 @@ namespace TaomeeTools.AssetAuditor
         //
         private List<string> nameList;
 
-        private bool isDeleting = false;
-
         private bool isNameOK = true;
         private string boxTip = "";
         private string ruleName = "";
+
+        private List<string> DeleteList;
+        private List<RuleConfig> ruleConfigList;
+
 
         [MenuItem("Taomee Tools/Asset Auditor")]
         private static void OpenWindow()
         {
             var window = GetWindow<AssetAuditorWindow>();
-            window.position = GUIHelper.GetEditorWindowRect().AlignCenter(800, 600);
+            window.position = GUIHelper.GetEditorWindowRect().AlignCenter(800, 750);
         }
+        /// <summary>
+        /// 删除一个规则配置
+        /// </summary>
+        /// <param name="path"></param>
         public static void DeleteRule(string path)
         {
             var window = GetWindow<AssetAuditorWindow>();
@@ -42,38 +48,53 @@ namespace TaomeeTools.AssetAuditor
 
         private void Delete(string path)
         {
-            isDeleting = true;
+            DeleteList.Add(path);
+            
             this.BuildMenuTree();
             this.ForceMenuTreeRebuild();
-            //????
-            AssetDatabase.DeleteAsset(path);
+            //
+            this.OnEndGUI += DelayDelete;
         }
+        
+        private void DelayDelete()
+        {
+            this.OnEndGUI -= DelayDelete;
+            
+            foreach (var item in DeleteList)
+            {
+                AssetDatabase.DeleteAsset(item);
+            }
+            DeleteList.Clear();
+        }
+        
+
+        public static void ReSort()
+        {
+            var window = GetWindow<AssetAuditorWindow>();
+            window.ReSortMenu();
+        }
+        private void ReSortMenu()
+        {
+            this.BuildMenuTree();
+            this.ForceMenuTreeRebuild();
+        }
+
+
         private void Init()
         {
             nameList = new List<string>();
+            DeleteList = new List<string>();
+            ruleConfigList = new List<RuleConfig>();
             //
             string[] list = AssetDatabase.FindAssets("t:AssetAuditorSetting");
             var path = AssetDatabase.GUIDToAssetPath(list[0]);
             setting = AssetDatabase.LoadAssetAtPath<AssetAuditorSetting>(path);
             currentAuditor = setting.infoFile;
-
-            /*
-            int n = currentAuditor.ConfigList.Count;
-            Debug.Log("config num:" + n);
-
-            if(n == 0)
-            {
-                Debug.Log("create new");
-                var asset = CreateNewRule("rule");
-
-                currentAuditor.AddRule(asset);
-                AssetDatabase.SaveAssets();
-            }
-            */
+            
         }
         protected override void OnGUI()
         {
-            if(currentAuditor == null)
+            if (currentAuditor == null)
             {
                 this.Init();
             }
@@ -106,9 +127,12 @@ namespace TaomeeTools.AssetAuditor
 
                 if (isNameOK == true)
                 {
-                    Debug.Log("create new rule");
+                    //Debug.Log("create new rule");
                     CreateNewRule(ruleName);
                     ruleName = "";
+                    
+                    this.BuildMenuTree();
+                    this.ForceMenuTreeRebuild();
                 }
             }
             GUI.color = Color.white;
@@ -126,20 +150,36 @@ namespace TaomeeTools.AssetAuditor
             GUILayout.Space(10);
 
             base.OnGUI();
-            /*
+            
             GUILayout.BeginHorizontal();
-            GUILayout.Button("New Folders Rule",GUILayoutOptions.Height(100));
-            GUILayout.Button("New Files Rule");
+            GUI.color = Color.cyan;
+            if(GUILayout.Button("应用全部规则",GUILayoutOptions.Height(40)))
+            {
+                ExecuteAllRule();
+            }
+            GUI.color = Color.white;
             GUILayout.EndHorizontal();
-            */
+            
             //
         }
+
+        private void ExecuteAllRule()
+        {
+            int n = ruleConfigList.Count;
+            Debug.Log(n);
+            for (int i = 0; i < n; i++)
+            {
+                RuleConfig config = ruleConfigList[i];
+                
+            }
+        }
+
 
         /// <summary>
         /// Creates the new rule asset file.
         /// </summary>
         /// <param name="str">Name.</param>
-        private BaseRuleConfig CreateNewRule(string str)
+        private RuleConfig CreateNewRule(string str)
         {
             var tempPath = setting.configPath + "/" +
                           Path.GetFileNameWithoutExtension(AssetDatabase.GetAssetPath(currentAuditor)) + "Res";
@@ -149,30 +189,23 @@ namespace TaomeeTools.AssetAuditor
             {
                 Directory.CreateDirectory(tempPath);
             }
-            var asset = new TextureRule();
+            var asset = new RuleConfig();
+            asset.RuleName = str;
             AssetDatabase.CreateAsset(asset, tempPath + "/" + str + ".asset");
             AssetDatabase.SaveAssets();
             return asset;
         }
 
-
-
-
-
-
-
-
+        
         protected override OdinMenuTree BuildMenuTree()
         {
-            
+            nameList.Clear();
+            ruleConfigList.Clear();
+
             OdinMenuTree tree = new OdinMenuTree(supportsMultiSelect: false)
             { };
             //
             //
-            if(isDeleting)
-            {
-                return tree;
-            }
             var tempPath = setting.configPath + "/" +
                           Path.GetFileNameWithoutExtension(AssetDatabase.GetAssetPath(currentAuditor)) + "Res";
             
@@ -183,28 +216,60 @@ namespace TaomeeTools.AssetAuditor
             DirectoryInfo direction = new DirectoryInfo(tempPath);  
 
             FileInfo[] files = direction.GetFiles("*",SearchOption.TopDirectoryOnly);
+            //
+            //
+            //List<BaseRuleConfig> tempList = new List<BaseRuleConfig>();
+            
             var currentRuleNum = files.Length;
             for (int i = 0;i < currentRuleNum; i++)
             {
                 FileInfo info = files[i];
                 if(info.Name.EndsWith(".asset"))
                 {
-                    BaseRuleConfig config = AssetDatabase.LoadAssetAtPath<BaseRuleConfig>(tempPath + "/" + info.Name);
-                    var name = Path.GetFileNameWithoutExtension(info.Name);
-                    tree.Add(name, config);
-                    nameList.Add(name);
+                    var path = tempPath + "/" + info.Name;
+                    if(DeleteList.Contains(path) == false)
+                    {
+                        RuleConfig config = AssetDatabase.LoadAssetAtPath<RuleConfig>(path);
+                        var name = Path.GetFileNameWithoutExtension(config.RuleName);
+                        nameList.Add(name);
+                        //tree.Add(name, config);
+                        ruleConfigList.Add(config);
+                    }
                 }
-            } 
-            
-            /*
-
-            tree.Add("Menu/Items/Are/Created/As/Needed", new GUIContent());
-            //tree.Add("Menu/Items/Are/Created", new GUIContent("And can be overridden"));
-
-            tree.SortMenuItemsByName();
-            */
+            }
+            //
+            ruleConfigList.Sort(SortList);
+            for (int j = 0; j < ruleConfigList.Count; j++)
+            {
+                RuleConfig conf = ruleConfigList[j];
+                tree.Add(conf.RuleName, conf);
+            }
 
             return tree;
+        }
+        //
+        //
+        private int SortList(RuleConfig a, RuleConfig b)
+
+        {
+
+            if (a.Priority > b.Priority)
+
+            {
+                return -1;
+
+            }
+
+            else if (a.Priority < b.Priority)
+
+            {
+
+                return 1;
+
+            }
+
+            return 0;
+
         }
     }
 

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 namespace TaomeeTools.AssetAuditor
 {
-    [System.Serializable]
-    public class BaseRuleConfig : ScriptableObject
+    public class ExecuteRule
     {
+
 
     }
 }
