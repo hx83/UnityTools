@@ -34,7 +34,7 @@ namespace TaomeeTools.AssetAuditor
         private static void OpenWindow()
         {
             var window = GetWindow<AssetAuditorWindow>();
-            window.position = GUIHelper.GetEditorWindowRect().AlignCenter(800, 750);
+            window.position = GUIHelper.GetEditorWindowRect().AlignCenter(800, 650);
         }
         /// <summary>
         /// 删除一个规则配置
@@ -162,15 +162,23 @@ namespace TaomeeTools.AssetAuditor
             
             //
         }
-
+        /// <summary>
+        /// 执行所有规则
+        /// </summary>
         private void ExecuteAllRule()
         {
             int n = ruleConfigList.Count;
-            Debug.Log(n);
+            /*
             for (int i = 0; i < n; i++)
             {
                 RuleConfig config = ruleConfigList[i];
-                
+                ExecuteRule.Execute(config);
+            }
+            */
+            for (int i = n - 1; i >= 0; i--)
+            {
+                RuleConfig config = ruleConfigList[i];
+                ExecuteRule.Execute(config);
             }
         }
 
@@ -229,7 +237,10 @@ namespace TaomeeTools.AssetAuditor
                     var path = tempPath + "/" + info.Name;
                     if(DeleteList.Contains(path) == false)
                     {
+                        //Debug.Log(path);
+
                         RuleConfig config = AssetDatabase.LoadAssetAtPath<RuleConfig>(path);
+                        //Debug.Log(config);
                         var name = Path.GetFileNameWithoutExtension(config.RuleName);
                         nameList.Add(name);
                         //tree.Add(name, config);
