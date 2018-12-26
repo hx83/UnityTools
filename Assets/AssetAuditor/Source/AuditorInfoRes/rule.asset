@@ -7,18 +7,19 @@ MonoBehaviour:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_EditorHideFlags: 1
+  m_Script: {fileID: 11500000, guid: 93d25e06269f14543a29329b607b4be8, type: 3}
   m_Name: rule
   m_EditorClassIdentifier: 
-  Priority: 3
-  ruleType: 1
+  RuleName: rule
+  Priority: 0
+  ruleType: 0
   textureList: []
-  FoldPath: 
+  FoldPath: Assets/Test
   AssetType: 0
   ReadWriteEnabled: 0
   MipMaps: 0
-  TextureMaxSizeAndroid: 512
+  TextureMaxSizeAndroid: 32
   compressAndroid: 47
   TextureMaxSizeIOS: 512
   compressIOS: 33

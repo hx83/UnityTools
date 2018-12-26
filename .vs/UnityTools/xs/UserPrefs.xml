@@ -1,12 +1,9 @@
 ﻿<Properties StartupConfiguration="{C4C090E3-CA6D-FE6F-42B5-46FD9309E9AD}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/AssetAuditor/Scripts/Editor/AssetAuditorWindow.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/AssetAuditor/Scripts/Editor/Config/ExecuteRule.cs">
     <Files>
-      <File FileName="Assets/AssetAuditor/Scripts/Editor/AssetAuditorWindow.cs" Line="48" Column="19" />
-      <File FileName="Assets/AssetAuditor/Scripts/Editor/Config/AuditorInfo.cs" Line="23" Column="10" />
-      <File FileName="Assets/AssetAuditor/Scripts/Editor/Config/Rules/TextureRule.cs" Line="154" Column="34" />
-      <File FileName="Assets/Plugins/Sirenix/Demos/Attributes Overview/Scripts/ButtonExamples.cs" Line="37" Column="41" />
-      <File FileName="Assets/Plugins/Sirenix/Demos/Attributes Overview/Scripts/InfoBoxExamples.cs" Line="24" Column="37" />
-      <File FileName="Assets/Plugins/Sirenix/Demos/Attributes Overview/Scripts/OnInspectorGUIExamples.cs" Line="26" Column="10" />
+      <File FileName="Assets/AssetAuditor/Scripts/Editor/AssetAuditorWindow.cs" Line="177" Column="15" />
+      <File FileName="Assets/AssetAuditor/Scripts/Editor/Config/ExecuteRule.cs" Line="79" Column="71" />
+      <File FileName="Assets/AssetAuditor/Scripts/Editor/Config/Rules/RuleConfig.cs" Line="87" Column="26" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
